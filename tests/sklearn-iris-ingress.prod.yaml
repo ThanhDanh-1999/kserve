@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kserve-sklearn-iris
+  namespace: istio-system
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/auth-realm: Authentication Required
+    nginx.ingress.kubernetes.io/auth-secret: nginx-ingress-basic-auth
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/proxy-body-size: 10m
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: '120'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '120'
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '120'
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/upstream-vhost: sklearn-iris.default.svc.cluster.local
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - ai.example.com
+    secretName: ai-prod-tmp-ingress-tls
+  rules:
+  - host: ai.example.com
+    http:
+      paths:
+      - path: /sklearn-iris(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: knative-local-gateway
+            port:
+              number: 80
+# kubectl apply -f sklearn-iris-ingress.prod.yaml
+# kubectl delete -f sklearn-iris-ingress.prod.yaml

@@ -1,0 +1,25 @@
+apiVersion: "serving.kserve.io/v1beta1"
+kind: "InferenceService"
+metadata:
+  name: "sklearn-iris"
+  annotations:
+    serving.kserve.io/enable-metric-aggregation: "true"
+    serving.kserve.io/enable-prometheus-scraping: "true"
+    prometheus.io/scrape: "true"
+spec:
+  predictor:
+    model:
+      modelFormat:
+        name: sklearn
+      storageUri: "gs://kfserving-examples/models/sklearn/1.0/model"
+      resources:
+        limits:
+          cpu: 200m
+          memory: 400Mi
+        requests:
+          cpu: 1m
+          memory: 10Mi
+
+# kubectl apply -f sklearn-iris.yaml
+# kubectl delete -f sklearn-iris.yaml
+
